@@ -27,17 +27,20 @@ comunas_rm<-mapa_comunas[mapa_comunas$codigo_region==13,]
 
 comunas_rm<-merge(comunas_rm,covid,by.x="codigo_comuna",by.y="Codigo comuna",all.x=TRUE,sort=F)
 
+comunas_rm<-st_sf(comunas_rm)
 
 # Choropleth plot (continuos scale)
 
 library(RColorBrewer)
-paleta <- rev(brewer.pal(n = 5,name = "Reds"))
+paleta <- brewer.pal(n = 5,name = "Reds")
 
 p_cont<-ggplot(comunas_rm) + 
   geom_sf(aes(fill = `Casos Confirmados`, geometry = geometry)) +
-  scale_fill_gradientn(colours = rev(paleta), name = "No. Casos") +
+  scale_fill_gradientn(colours = paleta, name = "No. Casos") +
   labs(title = "Casos Confirmados", subtitle = "Región Metropolitana - 2020-04-08") +
   theme_minimal(base_size = 11)
+
+p_cont
 
 # Choropleth plot (Discrete scale)
 ## Fixed
@@ -49,10 +52,12 @@ breaks_fixed <- classIntervals(comunas_rm$`Casos Confirmados`, n = 5, style = "f
 comunas_rm$casos_fixed<-cut(comunas_rm$`Casos Confirmados`,breaks = breaks_fixed$brks)
 
 p_fixed<-ggplot(comunas_rm) + 
-  geom_sf(aes(fill = casos_fixed, geometry = geometry)) +
+  geom_sf(aes(fill = `casos_fixed`, geometry = geometry)) +
   scale_fill_brewer(palette = "Reds")+
   labs(title = "Casos Confirmados", subtitle = "Región Metropolitana - 2020-04-08") +
   theme_minimal(base_size = 11)
+
+p_fixed
 
 # Equal interval
 breaks_equal <- classIntervals(comunas_rm$`Casos Confirmados`, n = 5, style = "equal")
