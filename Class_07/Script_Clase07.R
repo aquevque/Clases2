@@ -41,7 +41,8 @@ library(ggplot2)
 comunas_rm<-mapa_comunas[mapa_comunas$codigo_region==13,]
 
 comunas_rm<-merge(x = comunas_rm,y = COVID[`Codigo region`==13,],by.x="codigo_comuna",by.y="Codigo comuna",all.x=TRUE,sort=F)
-
+comunas_rm<-st_sf(comunas_rm)
+class(comunas_rm)
 comunas_rm<-as_Spatial(comunas_rm)
 
 library(spdep)
@@ -52,6 +53,7 @@ w_rm<-nb2listw(nbs,style = "W")
 
 plot(comunas_rm)
 plot(nbs,coordinates(comunas_rm),add=T,col='blue',pch=".")
+plot(nbs,coordinates(comunas_rm),add=T,col='red')
 
 comunas_rm$Confirmados_2020.04.17_sl<-lag.listw(w_rm,comunas_rm$Confirmados_2020.04.17)
 
@@ -64,7 +66,10 @@ moran.test(comunas_rm$Confirmados_2020.04.17,listw = w_rm)
 
 moran.plot(comunas_rm$Confirmados_2020.04.17,listw = w_rm,)
 
-ggplot(comunas_rm@data,aes(x=Confirmados_2020.04.17,y=Confirmados_2020.04.17_sl))+geom_point()+geom_smooth(method = 'lm',se = F) +geom_smooth(method = 'loess',se = F,col='darkgreen') +geom_hline(yintercept = mean(comunas_rm@data$Confirmados_2020.04.17_sl),col='red') +geom_vline(xintercept = mean(comunas_rm@data$Confirmados_2020.04.17),col='red')
+ggplot(comunas_rm@data,aes(x=Confirmados_2020.04.17,y=Confirmados_2020.04.17_sl))+
+  geom_point()+geom_smooth(method = 'lm',se = F)+geom_smooth(method = 'loess',se = F,col='darkgreen')+
+  geom_hline(yintercept = mean(comunas_rm@data$Confirmados_2020.04.17_sl),col='red')+
+  geom_vline(xintercept = mean(comunas_rm@data$Confirmados_2020.04.17),col='red')
 
 
 #### Local Moran
@@ -94,4 +99,3 @@ colors <- c("red", "blue", "lightpink", "skyblue2", "white")
 plot(comunas_rm, col = colors[np])  #colors[np] manually sets the color for each county
 mtext("Local Moran's I", cex = 1.5, side = 3, line = 1)
 legend("topright", legend = labels, fill = colors, bty = "n",cex = 0.9)
-
